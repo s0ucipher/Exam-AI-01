@@ -24,7 +24,7 @@ import {
 import './index.css'
 import InputSection from './components/InputSection'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5050'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 
 const categoryIcons = {
   Study: BookOpen,

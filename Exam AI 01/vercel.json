@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "functions": {
+    "app.py": {
+      "excludeFiles": "{frontend/node_modules/**,frontend/src/**,frontend/public/**,**/__pycache__/**,**/*.pyc}"
+    }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/app.py" }
+  ]
+}

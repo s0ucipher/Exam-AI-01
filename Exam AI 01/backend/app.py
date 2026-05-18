@@ -2,8 +2,10 @@ import os
 import subprocess
 import sys
 
+sys.path.insert(0, os.path.dirname(__file__))
+
 from dotenv import load_dotenv
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 from organizer import organize_folder, organize_sources, save_organized_copy
@@ -11,7 +13,9 @@ from organizer import organize_folder, organize_sources, save_organized_copy
 
 load_dotenv()
 
-app = Flask(__name__)
+FRONTEND_DIST = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
+
+app = Flask(__name__, static_folder=FRONTEND_DIST, static_url_path="")
 CORS(app)
 
 
@@ -217,6 +221,26 @@ def save_organized():
     except Exception as error:
         print(f"Error saving organized files: {str(error)}")
         return jsonify({"error": "An error occurred while saving organized files."}), 500
+
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_frontend(path):
+    if path.startswith("api/"):
+        return jsonify({"error": "API route not found."}), 404
+
+    requested_file = os.path.join(FRONTEND_DIST, path)
+    if path and os.path.exists(requested_file) and os.path.isfile(requested_file):
+        return send_from_directory(FRONTEND_DIST, path)
+
+    index_path = os.path.join(FRONTEND_DIST, "index.html")
+    if os.path.exists(index_path):
+        return send_from_directory(FRONTEND_DIST, "index.html")
+
+    return jsonify({
+        "error": "Frontend build not found.",
+        "fix": "Run npm run build inside the frontend folder, then restart Flask.",
+    }), 404
 
 
 if __name__ == "__main__":
